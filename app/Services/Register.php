@@ -117,21 +117,30 @@ class Register
 			]);
 		//populate 15 collations for presidential election	
 		$collations = [
-			'PRESIDENTIAL',
-			'SOKOTO CENTRAL',
-			'SOKOTO EAST', 
-			'SOKOTO SOUTH',
-            'SOKOTO NORTH / SOKOTO SOUTH',
-            'WAMAKKO / KWARE',
-            'SILAME / BINJI',
-            'TANGAZA / GUDU',
-            'TAMBUWAL / KEBBE',
-            'YABO / SHAGARI',
-            'BODINGA / DANGE SHUNI / TURETA',
-            'WURNO / RABAH',
-            'GORONYO / GADA',
-            'SABON BIRNI / ISA',
-            'GWADABAWA / ILLELA'
+			'GOVERNATORIAL',
+			'BINJI',
+            'BODINGA', 
+            'DANGE SHUNI', 
+            'GADA', 
+            'GORONYO',
+            'GUDU', 
+            'GWADABAWA', 
+            'ILLELA', 
+			'ISA',
+            'KEBBE', 
+            'KWARE',
+            'RABAH',
+			'SABON BIRNI',
+            'SILAME',
+            'SHAGARI',
+            'SOKOTO NORTH',
+            'SOKOTO SOUTH',
+            'TAMBUWAL',
+            'TANGAZA',
+            'TURETA',
+            'WAMAKKO',
+            'WURNO',
+            'YABO'
 		];
 		//populate the incidences table
         $incidences = [
@@ -152,10 +161,8 @@ class Register
         	$collation = Collation::firstOrCreate(['name'=>$collation]);
         	if($collation->id == 1){
         		$type_id = 1;
-        	}elseif($collation->id == 2 || $collation->id == 3 || $collation->id == 4){
-        		$type_id = 2;
         	}else{
-        		$type_id = 3;
+        		$type_id = 2;
         	}
             $collation->resultCount()->firstOrCreate(['type_id'=>$type_id]);
         }
@@ -186,7 +193,7 @@ class Register
 			
 		]);
         //populate types of election
-		$type = ['PRESIDENTIAL','SENATORIAL','HOUSE OF REPS'];
+		$type = ['GOVERNATORIL','HOUSE OF ASSEMBLY'];
         //firstOrCreate the three types of election
         foreach ($type as $name) {
         	Type::firstOrCreate(['name'=>$name]);
@@ -207,7 +214,7 @@ class Register
 					'returning'=> 1
 				]);
                 //firstOrCreate three returning result and result count for each lga
-                for ($i=1; $i <= 3 ; $i++) { 
+                for ($i=1; $i <= 2 ; $i++) { 
                 	$local->resultCounts()->firstOrCreate(['type_id'=>$i]);
                 	$local->returningResults()->firstOrCreate(['type_id'=>$i]);
                 }
@@ -234,7 +241,7 @@ class Register
 							'ward_id'=> $this_ward->id
 						]);
 						//firstOrCreate three ward resturning result for 3 election
-						for ($i=1; $i <= 3 ; $i++) { 
+						for ($i=1; $i <= 2 ; $i++) { 
 		                	$this_ward->returningResults()->firstOrCreate(['type_id'=>$i]);
 		                }
 						foreach ($ward['pollingUnits'] as $pollingUnits) {
@@ -242,20 +249,16 @@ class Register
 							foreach ($pollingUnits as $pollingUnit) {
                                 
                                 //firstOrCreate polling unit 
-								$agent = $this_ward->pollingUnits()->firstOrCreate(['name'=>$pollingUnit,'ward_id'=>$this_ward->id]);
+								$agent = $this_ward->pollingUnits()->create(['name'=>$pollingUnit,'ward_id'=>$this_ward->id]);
 								// firstOrCreate polling unit result with zero values
 								    $collation = $this->getCollation($local);
-									Result::firstOrCreate(['type_id'=>1,'polling_unit_id'=>$agent->id,'collation_id'=>$collation[0]]);
-									Result::firstOrCreate(['type_id'=>2,'polling_unit_id'=>$agent->id,'collation_id'=>$collation[1]]);
-									Result::firstOrCreate(['type_id'=>3,'polling_unit_id'=>$agent->id,'collation_id'=>$collation[2]]);
-								
-                         
+									$agent->results()->create(['type_id'=>1,'collation_id'=>$collation[0]]);
+									$agent->results()->create(['type_id'=>2,'collation_id'=>$collation[1]]);
 								//firstOrCreate agent of the polling unit
-								$agent->user()->firstOrCreate([
+								$agent->user()->create([
                                     'email'=>'a'.$this->agentCode($agent->id).'@apc.com',
 									'code'=>'a'.$this->agentCode($agent->id),
 									'password'=>Hash::make('a'.$this->agentCode($agent->id)),
-		
 								]);
 							}
 
