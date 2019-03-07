@@ -92,8 +92,7 @@ class ElectionResultController extends Controller
                     'invalid' => $lga->invalid + $votes['invalid'],
                     'acredited' => $lga->acredited + $votes['acredited'],
                     'registered' => $lga->registered + $votes['registered'],
-                ]);
-                
+                ]); 
             }
         session()->flash('message','Election result was sent successfully');
         return redirect('/home');
