@@ -20,7 +20,10 @@ class Ward extends Model
     {
     	return $this->belongsTo(Lga::class);
     }
-
+    public function resultCounts()
+    {
+        return $this->hasMany(WardResultCount::class);
+    }
     public function returningResults()
     {
         return $this->hasMany(WardReturningResult::class);
@@ -88,14 +91,6 @@ class Ward extends Model
         ];
     }
 
-
-
-
-
-
-
-
-
     public function governor()
     {
         $pdp = 0;
@@ -138,18 +133,16 @@ class Ward extends Model
         $registered = 0;
         $acredited = 0;
         
-        foreach ($this->returningResults as $result) {
-            foreach ($this->pollingUnits as $pollingUnit) {
-                $result = $pollingUnit->assembly();
-                $pdp = $pdp + $result['pdp'];
-                $apc = $apc + $result['apc'];
-                $other = $other + $result['other'];
-                $invalid = $invalid + $result['invalid'];
-                $registered = $registered + $result['registered'];
-                $acredited = $acredited + $result['acredited'];
-                
-            }
+        foreach ($this->pollingUnits as $pollingUnit) {
+            $result = $pollingUnit->assembly();
+            $pdp = $pdp + $result['pdp'];
+            $apc = $apc + $result['apc'];
+            $other = $other + $result['other'];
+            $invalid = $invalid + $result['invalid'];
+            $registered = $registered + $result['registered'];
+            $acredited = $acredited + $result['acredited'];
         }
+       
         return [
             'pdp' => $pdp,
             'apc' => $apc,
