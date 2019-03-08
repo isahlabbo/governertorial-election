@@ -159,9 +159,9 @@ class Register
         //firstOrCreate all the collation centers
         foreach ($collations as $collation) {
         	$collation = Collation::firstOrCreate(['name'=>$collation]);
-        	if($collation->id == 1){
+        	if ($collation->id == 1) {
         		$type_id = 1;
-        	}else{
+        	} else {
         		$type_id = 2;
         	}
             $collation->resultCount()->firstOrCreate(['type_id'=>$type_id]);
@@ -232,6 +232,7 @@ class Register
 
                         //register ward
                         $this_ward = Ward::firstOrCreate(['name'=>$ward['name'],'lga_id'=>$local->id]);
+                        $this_ward->resultCounts()->create([]);
                         $code = substr(md5($this_ward->id.'w'),0, 8);
                         //firstOrCreate ward returning officer
                         $this_ward->user()->firstOrCreate([

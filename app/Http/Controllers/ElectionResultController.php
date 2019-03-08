@@ -52,7 +52,7 @@ class ElectionResultController extends Controller
                     'acredited' => $count->acredited + $votes['acredited'],
                     'registered' => $count->registered + $votes['registered'],
                 ]);
-                $lga = $this->lgagovernorCount($governor_result);
+                $lga = $this->lgaGovernorCount($governor_result);
                 $lga->update([
                     'apc' => $lga->apc + $request->governor_apc,
                     'pdp' => $lga->pdp + $request->governor_pdp,
@@ -62,6 +62,29 @@ class ElectionResultController extends Controller
                     'acredited' => $lga->acredited + $votes['acredited'],
                     'registered' => $lga->registered + $votes['registered'],
                 ]);
+                foreach($pollingUnit->ward->resultCounts as $result){
+                    if($result->type_id == 1){
+                        $result->update([
+                            'apc' => $result->apc + $request->governor_apc,
+                            'pdp' => $result->pdp + $request->governor_pdp,
+                            'other' => $result->other + $request->governor_other,
+                            'valid' => $result->valid + $votes['valid'],
+                            'invalid' => $result->invalid + $votes['invalid'],
+                            'acredited' => $result->acredited + $votes['acredited'],
+                            'registered' => $result->registered + $votes['registered'],
+                        ]);
+                    }else{
+                        $result->update([
+                            'apc' => $result->apc + $request->assembly_apc,
+                            'pdp' => $result->pdp + $request->assembly_pdp,
+                            'other' => $result->other + $request->assembly_other,
+                            'valid' => $result->valid + $votes['valid'],
+                            'invalid' => $result->invalid + $votes['invalid'],
+                            'acredited' => $result->acredited + $votes['acredited'],
+                            'registered' => $result->registered + $votes['registered'],
+                        ]);
+                    }
+                }
             } 
             
             $assembly_result->update([
@@ -167,6 +190,7 @@ class ElectionResultController extends Controller
                 'acredited' => $lga->acredited - $model->acredited + $votes['acredited'],
                 'registered' => $lga->registered - $model->registered + $votes['registered'],
             ]);
+
             $assembly_result->update([
                 'pdp'=>$request->assembly_pdp,
                 'apc'=>$request->assembly_apc,
@@ -174,6 +198,32 @@ class ElectionResultController extends Controller
                 'valid_vote'=>$request->assembly_pdp + $request->assembly_apc + $request->assembly_other,
                 'invalid_vote'=>$request->assembly_invalid_vote
             ]);
+            
+            foreach($pollingUnit->ward->resultCounts as $result){
+                    if($result->type_id == 1){
+                        $pollingUnitResult = getPollingUnitResult($pollingUnit,1);
+                        $result->update([
+                            'apc' => $result->apc - $pollingUnitResult->apc + $request->governor_apc,
+                            'pdp' => $result->pdp - $pollingUnitResult->pdp + $request->governor_pdp,
+                            'other' => $result->other - $pollingUnitResult->other + $request->governor_other,
+                            'valid' => $result->valid - $pollingUnitResult->valid + $votes['valid'],
+                            'invalid' => $result->invalid - $pollingUnitResult->invalid + $votes['invalid'],
+                            'acredited' => $result->acredited - $pollingUnitResult->pollingUnit->acredited + $votes['acredited'],
+                            'registered' => $result->registered - $pollingUnitResult->pollingUnit->registered + $votes['registered'],
+                        ]);
+                    }else{
+                        $pollingUnitResult = getPollingUnitResult($pollingUnit,2);
+                        $result->update([
+                            'apc' => $result->apc - $pollingUnitResult->apc + $request->governor_apc,
+                            'pdp' => $result->pdp - $pollingUnitResult->pdp + $request->governor_pdp,
+                            'other' => $result->other - $pollingUnitResult->other + $request->governor_other,
+                            'valid' => $result->valid - $pollingUnitResult->valid + $votes['valid'],
+                            'invalid' => $result->invalid - $pollingUnitResult->invalid + $votes['invalid'],
+                            'acredited' => $result->acredited - $pollingUnitResult->pollingUnit->acredited + $votes['acredited'],
+                            'registered' => $result->registered - $pollingUnitResult->pollingUnit->registered + $votes['registered'],
+                        ]);
+                    }
+                }
         session()->flash('message','Election result was sent successfully');
         return redirect('/home');
     }
@@ -181,6 +231,14 @@ class ElectionResultController extends Controller
     {
         foreach ($models->get() as $model) {
             return $model;
+        }
+    }
+    public function getPollingUnitResult(PollingUnit $pollingUnit, $id)
+    {
+        foreach ($pollingUnit->results as $result) {
+            if($id == $result->type_id){
+                return $result;
+            }
         }
     }
     public function getResultCount($result)
