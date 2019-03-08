@@ -227,12 +227,13 @@ class Register
 				]);
 
 				foreach ($lga['wards'] as $wards) {
-
 					foreach ($wards as $ward) {
-
                         //register ward
                         $this_ward = Ward::firstOrCreate(['name'=>$ward['name'],'lga_id'=>$local->id]);
-                        $this_ward->resultCounts()->create([]);
+                        for ($i=1; $i <=2 ; $i++) { 
+                            $this_ward->resultCounts()->create(['type_id' => $i]);
+                        }
+                        
                         $code = substr(md5($this_ward->id.'w'),0, 8);
                         //firstOrCreate ward returning officer
                         $this_ward->user()->firstOrCreate([
