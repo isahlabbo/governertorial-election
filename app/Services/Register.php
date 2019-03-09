@@ -109,7 +109,7 @@ class Register
 	{
 		//create federal dashboard account
 		$code = substr(md5('federal'), 0, 8);
-			User::firstOrCreate([
+			User::create([
                 'email'=>$code.'@apc.com',
 				'code'=>$code,
 				'password'=>Hash::make($code),
@@ -177,7 +177,7 @@ class Register
 		foreach ($centers as $center) {
 			$userCenter = Center::firstOrCreate(['name'=>$center]);
 			$code = substr(md5($userCenter->id), 0, 8);
-			$userCenter->user()->firstOrCreate([
+			$userCenter->user()->create([
                 'email'=>$code.'@apc.com',
 				'code'=>$code,
 				'password'=>Hash::make($code)
@@ -185,7 +185,7 @@ class Register
 		}
         //firstOrCreate collation user
 		$code = substr(md5('collation'),0, 8);
-		User::firstOrCreate([
+		User::create([
             'email'=>$code.'@apc.com',
 			'code'=>$code,
 			'password'=>Hash::make($code),
@@ -207,7 +207,7 @@ class Register
 				$local = Lga::firstOrCreate(['name'=>$lga['name']]);
                 //firstOrCreate local government returning officer
                 $code = substr(md5($local->id.'r'),0, 8);
-				$local->user()->firstOrCreate([
+				$local->user()->create([
 		            'email'=>$code.'@apc.com',
 					'code'=>$code,
 					'password'=>Hash::make($code),
@@ -220,7 +220,7 @@ class Register
                 }
 				//firstOrCreate the user of the local government for data entry
 				$code = substr(md5($local->id.'l'),0, 8);
-				$local->user()->firstOrCreate([
+				$local->user()->create([
 		            'email'=>$code.'@apc.com',
 					'code'=>$code,
 					'password'=>Hash::make($code),
@@ -229,14 +229,14 @@ class Register
 				foreach ($lga['wards'] as $wards) {
 					foreach ($wards as $ward) {
                         //register ward
-                        $this_ward = Ward::firstOrCreate(['name'=>$ward['name'],'lga_id'=>$local->id]);
+                        $this_ward = Ward::create(['name'=>$ward['name'],'lga_id'=>$local->id]);
                         for ($i=1; $i <=2 ; $i++) { 
                             $this_ward->resultCounts()->create(['type_id' => $i]);
                         }
                         
                         $code = substr(md5($this_ward->id.'w'),0, 8);
                         //firstOrCreate ward returning officer
-                        $this_ward->user()->firstOrCreate([
+                        $this_ward->user()->create([
 				            'email'=>$code.'@apc.com',
 							'code'=>$code,
 							'password'=>Hash::make($code),
@@ -244,12 +244,10 @@ class Register
 						]);
 						//firstOrCreate three ward resturning result for 3 election
 						for ($i=1; $i <= 2 ; $i++) { 
-		                	$this_ward->returningResults()->firstOrCreate(['type_id'=>$i]);
+		                	$this_ward->returningResults()->create(['type_id'=>$i]);
 		                }
 						foreach ($ward['pollingUnits'] as $pollingUnits) {
-                            
 							foreach ($pollingUnits as $pollingUnit) {
-                                
                                 //firstOrCreate polling unit 
 								$agent = $this_ward->pollingUnits()->create(['name'=>$pollingUnit,'ward_id'=>$this_ward->id]);
 								// firstOrCreate polling unit result with zero values
